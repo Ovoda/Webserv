@@ -2,28 +2,33 @@
 #define NETWORK_SIMPLE_REQUEST_HPP
 
 #include <netinet/in.h>
+#include <fcntl.h>
 #include <time.h>
-
+#include <iostream>
 #include <string>
 
 namespace network {
 class SimpleRequest {
    public:
-    SimpleRequest(void);
-    ~SimpleRequest();
+	SimpleRequest( int );
+	SimpleRequest( void );
+	~SimpleRequest();
 
-    void set_fd(int fd);
-    void set_ipv4(char const ipv4[INET_ADDRSTRLEN]);
-	void set_time( void );
+	void 	set_fd(int fd);
+	int 	get_fd(void) const;
+	std::string	get_data(void) const;
+	void	unblock( void );
+	std::string &extract( void );
 
-    int 	get_fd(void) const;
-    char const	*get_ipv4(void) const;
+	/* Usefull for pipelining */
+	//	void set_ipv4(char const ipv4[INET_ADDRSTRLEN]);
+	//	char const	*get_ipv4(void) const;
+
 
    private:
-    int 		_fd;
-    std::string _data;
-    std::string	_ipv4;
-	time_t		_time;
+	int 		_fd;
+	std::string _data;
+	// std::string	_ipv4;
 };
 }  // namespace network
 

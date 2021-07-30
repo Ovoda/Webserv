@@ -1,30 +1,48 @@
 #include "Socket.hpp"
+
+#include <errno.h>
+#include <stdio.h>
 namespace network {
 
-Socket::Socket(void) : _type(SOCK_STREAM), _domain(AF_INET), _protocol(0) {}
+Socket::Socket(void)
+    : _type(SOCK_STREAM), _domain(AF_INET), _protocol(0), _is_good(true) {}
 
 Socket::Socket(Socket const &src) { *this = src; }
 
 Socket::~Socket() {}
 
 Socket::Socket(int const port)
-    : _port(port), _type(SOCK_STREAM), _domain(AF_INET), _protocol(0) {
-    if ((_id = socket(_domain, _type, _protocol)) == 0) {
+    : _port(port),
+      _type(SOCK_STREAM),
+      _domain(AF_INET),
+      _protocol(0),
+      _is_good(true) {
+    int enable = 1;
+    if ((_id = socket(_domain, _type, _protocol)) < 0) {
         std::cerr << "Error: Cannot create socket" << std::endl;
+        _is_good = false;
         return;
     }
+    if (setsockopt(_id, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
+        std::cout << "setsockopt(SO_REUSEADDR) failed" << std::endl;
     _address.sin_family = _domain;
     _address.sin_addr.s_addr = INADDR_ANY;
     _address.sin_port = htons(_port);
 
     memset(_address.sin_zero, '\0', sizeof(_address.sin_zero));
-    if (do_bind() == 0 && do_listen() == 0)
-        std::cout << "Socket creation and binding successfull. Socket port : "
-                  << _port << std::endl;
+    if (_is_good == true) do_bind();
+    if (_is_good == true) do_listen();
+    // if (_is_good)
+    //     std::cout << "Socket creation and binding successfull. Socket port : "
+    //               << _port << " with ID : " << get_id() << std::endl;
+    // else {
+    //     std::cout << "Socket creation and binding failed. Socket port : "
+    //               << _port << std::endl;
+    // }
 }
 
 /***************************************************
-        Overloads
+                Overloads
 ***************************************************/
 
 Socket &Socket::operator=(Socket const &rhs) {
@@ -36,12 +54,13 @@ Socket &Socket::operator=(Socket const &rhs) {
         _type = rhs.get_type();
         _port = rhs.get_port();
         _id = rhs.get_id();
+        _is_good = rhs.is_good();
     }
     return (*this);
 }
 
 /***************************************************
-                Member Functions specific to sockets
+                                Member Functions specific to sockets
 ***************************************************/
 
 int Socket::do_bind(void) {
@@ -50,41 +69,47 @@ int Socket::do_bind(void) {
     _address.sin_port = htons(_port);
     if (bind(_id, (struct sockaddr *)&_address, sizeof(_address)) < 0) {
         std::cerr << "Error: Cannot bind socket" << std::endl;
+        std::cerr << strerror(errno) << std::endl;
+        _is_good = false;
         return (-1);
     }
     return (0);
 }
 
-int Socket::do_listen(void) const {
+int Socket::do_listen(void) {
     if (listen(_id, 10) < 0) {
         std::cerr << "Error: Listen" << std::endl;
+        _is_good = false;
         return (-1);
     }
     return (0);
 }
 
-network::SimpleRequest	Socket::do_accept(void) const {
+int Socket::do_accept(void) {
     socklen_t addr_len = get_addr_len();
-    network::SimpleRequest request;
     struct sockaddr_in client_addr;
-    char buffer[INET_ADDRSTRLEN];
+    int new_fd;
 
-    request.set_fd(
-        accept(get_id(), (struct sockaddr *)&client_addr, &addr_len));
-    if (request.get_fd() < 0) {
+    if ((new_fd = accept(get_id(), (struct sockaddr *)&client_addr,
+                         &addr_len)) < 0) {
         std::cerr << "Error accepting" << std::endl;
-        return (request);
+        _is_good = false;
+        return (-1);
     }
-	request.set_time();
-    request.set_ipv4(inet_ntop(AF_INET, &client_addr.sin_addr, buffer, INET_ADDRSTRLEN));
+    return (new_fd);
+}
 
-	// DEBUG
-	std::cout << "Request comming from : " << request.get_ipv4() << std::endl;
-    return (request);
+bool Socket::is_good(void) const { return (_is_good); }
+
+int Socket::unblock(void) {
+    std::cout << "unblock : is good = " << std::boolalpha << _is_good
+              << std::endl;
+    if (_is_good == false || _id < 0) return -1;
+    return (fcntl(_id, F_SETFL, O_NONBLOCK));
 }
 
 /***************************************************
-    Getters
+        Getters
 ***************************************************/
 
 int Socket::get_id(void) const { return _id; }

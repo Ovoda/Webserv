@@ -729,54 +729,6 @@ src/network/Socket.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/network/Socket.cpp.s
 .PHONY : src/network/Socket.cpp.s
 
-src/network/User.o: src/network/User.cpp.o
-.PHONY : src/network/User.o
-
-# target to build an object file
-src/network/User.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/network/User.cpp.o
-.PHONY : src/network/User.cpp.o
-
-src/network/User.i: src/network/User.cpp.i
-.PHONY : src/network/User.i
-
-# target to preprocess a source file
-src/network/User.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/network/User.cpp.i
-.PHONY : src/network/User.cpp.i
-
-src/network/User.s: src/network/User.cpp.s
-.PHONY : src/network/User.s
-
-# target to generate assembly for a file
-src/network/User.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/network/User.cpp.s
-.PHONY : src/network/User.cpp.s
-
-src/network/UserBase.o: src/network/UserBase.cpp.o
-.PHONY : src/network/UserBase.o
-
-# target to build an object file
-src/network/UserBase.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/network/UserBase.cpp.o
-.PHONY : src/network/UserBase.cpp.o
-
-src/network/UserBase.i: src/network/UserBase.cpp.i
-.PHONY : src/network/UserBase.i
-
-# target to preprocess a source file
-src/network/UserBase.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/network/UserBase.cpp.i
-.PHONY : src/network/UserBase.cpp.i
-
-src/network/UserBase.s: src/network/UserBase.cpp.s
-.PHONY : src/network/UserBase.s
-
-# target to generate assembly for a file
-src/network/UserBase.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/network/UserBase.cpp.s
-.PHONY : src/network/UserBase.cpp.s
-
 src/parser/Error.o: src/parser/Error.cpp.o
 .PHONY : src/parser/Error.o
 
@@ -1113,6 +1065,30 @@ src/parsing/Tokens.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/parsing/Tokens.cpp.s
 .PHONY : src/parsing/Tokens.cpp.s
 
+src/utils/Thread.o: src/utils/Thread.cpp.o
+.PHONY : src/utils/Thread.o
+
+# target to build an object file
+src/utils/Thread.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/utils/Thread.cpp.o
+.PHONY : src/utils/Thread.cpp.o
+
+src/utils/Thread.i: src/utils/Thread.cpp.i
+.PHONY : src/utils/Thread.i
+
+# target to preprocess a source file
+src/utils/Thread.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/utils/Thread.cpp.i
+.PHONY : src/utils/Thread.cpp.i
+
+src/utils/Thread.s: src/utils/Thread.cpp.s
+.PHONY : src/utils/Thread.s
+
+# target to generate assembly for a file
+src/utils/Thread.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/utils/Thread.cpp.s
+.PHONY : src/utils/Thread.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -1197,12 +1173,6 @@ help:
 	@echo "... src/network/Socket.o"
 	@echo "... src/network/Socket.i"
 	@echo "... src/network/Socket.s"
-	@echo "... src/network/User.o"
-	@echo "... src/network/User.i"
-	@echo "... src/network/User.s"
-	@echo "... src/network/UserBase.o"
-	@echo "... src/network/UserBase.i"
-	@echo "... src/network/UserBase.s"
 	@echo "... src/parser/Error.o"
 	@echo "... src/parser/Error.i"
 	@echo "... src/parser/Error.s"
@@ -1245,6 +1215,9 @@ help:
 	@echo "... src/parsing/Tokens.o"
 	@echo "... src/parsing/Tokens.i"
 	@echo "... src/parsing/Tokens.s"
+	@echo "... src/utils/Thread.o"
+	@echo "... src/utils/Thread.i"
+	@echo "... src/utils/Thread.s"
 .PHONY : help
 
 

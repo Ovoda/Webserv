@@ -13,10 +13,9 @@ set(FILES
         src/network/Socket.cpp
         src/network/SimpleRequest.hpp
         src/network/SimpleRequest.cpp
-        src/network/User.hpp
-        src/network/User.cpp
-        src/network/UserBase.hpp
-        src/network/UserBase.cpp
+
+        src/utils/Thread.hpp
+        src/utils/Thread.cpp
 
         src/parser/combinators.hpp
         src/parser/Error.cpp
