@@ -1065,6 +1065,30 @@ src/parsing/Tokens.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/parsing/Tokens.cpp.s
 .PHONY : src/parsing/Tokens.cpp.s
 
+src/utils/Kqueue.o: src/utils/Kqueue.cpp.o
+.PHONY : src/utils/Kqueue.o
+
+# target to build an object file
+src/utils/Kqueue.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/utils/Kqueue.cpp.o
+.PHONY : src/utils/Kqueue.cpp.o
+
+src/utils/Kqueue.i: src/utils/Kqueue.cpp.i
+.PHONY : src/utils/Kqueue.i
+
+# target to preprocess a source file
+src/utils/Kqueue.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/utils/Kqueue.cpp.i
+.PHONY : src/utils/Kqueue.cpp.i
+
+src/utils/Kqueue.s: src/utils/Kqueue.cpp.s
+.PHONY : src/utils/Kqueue.s
+
+# target to generate assembly for a file
+src/utils/Kqueue.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/utils/Kqueue.cpp.s
+.PHONY : src/utils/Kqueue.cpp.s
+
 src/utils/Thread.o: src/utils/Thread.cpp.o
 .PHONY : src/utils/Thread.o
 
@@ -1215,6 +1239,9 @@ help:
 	@echo "... src/parsing/Tokens.o"
 	@echo "... src/parsing/Tokens.i"
 	@echo "... src/parsing/Tokens.s"
+	@echo "... src/utils/Kqueue.o"
+	@echo "... src/utils/Kqueue.i"
+	@echo "... src/utils/Kqueue.s"
 	@echo "... src/utils/Thread.o"
 	@echo "... src/utils/Thread.i"
 	@echo "... src/utils/Thread.s"

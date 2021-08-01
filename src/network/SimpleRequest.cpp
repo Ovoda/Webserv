@@ -8,7 +8,7 @@ SimpleRequest::SimpleRequest( void ) {}
 
 SimpleRequest::SimpleRequest(int fd) : _fd(fd) {
 	if (_fd < 0) return;
-	unblock();
+	// unblock();
 	_data = extract();
 }
 

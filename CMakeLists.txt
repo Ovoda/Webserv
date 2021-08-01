@@ -16,6 +16,8 @@ set(FILES
 
         src/utils/Thread.hpp
         src/utils/Thread.cpp
+        src/utils/Kqueue.hpp
+        src/utils/Kqueue.cpp
 
         src/parser/combinators.hpp
         src/parser/Error.cpp
