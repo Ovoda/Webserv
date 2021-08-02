@@ -16,6 +16,10 @@ set(FILES
 
         src/utils/Thread.hpp
         src/utils/Thread.cpp
+        src/utils/SocketThread.hpp
+        src/utils/SocketThread.cpp
+        src/utils/KqueueThread.hpp
+        src/utils/KqueueThread.cpp
         src/utils/Kqueue.hpp
         src/utils/Kqueue.cpp
 

@@ -1089,6 +1089,54 @@ src/utils/Kqueue.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/utils/Kqueue.cpp.s
 .PHONY : src/utils/Kqueue.cpp.s
 
+src/utils/KqueueThread.o: src/utils/KqueueThread.cpp.o
+.PHONY : src/utils/KqueueThread.o
+
+# target to build an object file
+src/utils/KqueueThread.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/utils/KqueueThread.cpp.o
+.PHONY : src/utils/KqueueThread.cpp.o
+
+src/utils/KqueueThread.i: src/utils/KqueueThread.cpp.i
+.PHONY : src/utils/KqueueThread.i
+
+# target to preprocess a source file
+src/utils/KqueueThread.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/utils/KqueueThread.cpp.i
+.PHONY : src/utils/KqueueThread.cpp.i
+
+src/utils/KqueueThread.s: src/utils/KqueueThread.cpp.s
+.PHONY : src/utils/KqueueThread.s
+
+# target to generate assembly for a file
+src/utils/KqueueThread.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/utils/KqueueThread.cpp.s
+.PHONY : src/utils/KqueueThread.cpp.s
+
+src/utils/SocketThread.o: src/utils/SocketThread.cpp.o
+.PHONY : src/utils/SocketThread.o
+
+# target to build an object file
+src/utils/SocketThread.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/utils/SocketThread.cpp.o
+.PHONY : src/utils/SocketThread.cpp.o
+
+src/utils/SocketThread.i: src/utils/SocketThread.cpp.i
+.PHONY : src/utils/SocketThread.i
+
+# target to preprocess a source file
+src/utils/SocketThread.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/utils/SocketThread.cpp.i
+.PHONY : src/utils/SocketThread.cpp.i
+
+src/utils/SocketThread.s: src/utils/SocketThread.cpp.s
+.PHONY : src/utils/SocketThread.s
+
+# target to generate assembly for a file
+src/utils/SocketThread.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/webserv.dir/build.make CMakeFiles/webserv.dir/src/utils/SocketThread.cpp.s
+.PHONY : src/utils/SocketThread.cpp.s
+
 src/utils/Thread.o: src/utils/Thread.cpp.o
 .PHONY : src/utils/Thread.o
 
@@ -1242,6 +1290,12 @@ help:
 	@echo "... src/utils/Kqueue.o"
 	@echo "... src/utils/Kqueue.i"
 	@echo "... src/utils/Kqueue.s"
+	@echo "... src/utils/KqueueThread.o"
+	@echo "... src/utils/KqueueThread.i"
+	@echo "... src/utils/KqueueThread.s"
+	@echo "... src/utils/SocketThread.o"
+	@echo "... src/utils/SocketThread.i"
+	@echo "... src/utils/SocketThread.s"
 	@echo "... src/utils/Thread.o"
 	@echo "... src/utils/Thread.i"
 	@echo "... src/utils/Thread.s"

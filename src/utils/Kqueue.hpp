@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "../network/Socket.hpp"
-#include "Thread.hpp"
+#include "SocketThread.hpp"
 
 namespace utils {
 class KQueue {
@@ -25,7 +25,7 @@ class KQueue {
     struct kevent *get_event_to_monitor(void);
     struct kevent *get_triggered_events(void);
     void monitor(std::vector<network::Socket> servers_sockets,
-                 std::vector<utils::Thread> thread_pool);
+                 std::vector<utils::SocketThread> thread_pool);
 
    private:
     KQueue(void) {}

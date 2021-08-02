@@ -1,4 +1,5 @@
 #include "Kqueue.hpp"
+#include "SocketThread.hpp"
 
 namespace utils {
 KQueue::KQueue(int nb) {
@@ -29,7 +30,7 @@ struct kevent *KQueue::get_triggered_events(void) {
 }
 
 void KQueue::monitor(std::vector<network::Socket> servers_sockets,
-                     std::vector<utils::Thread> thread_pool) {
+                     std::vector<utils::SocketThread> thread_pool) {
     int kq, event;
     struct kevent event_to_monitor[servers_sockets.size()];
     struct kevent triggered_events[servers_sockets.size()];

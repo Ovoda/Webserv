@@ -1,4 +1,5 @@
 
+#include <poll.h>
 #include <sys/event.h>
 #include <sys/time.h>
 #include <unistd.h>
@@ -9,7 +10,8 @@
 #include "Config/ConfigParser.hpp"
 #include "network/SimpleRequest.hpp"
 #include "network/Socket.hpp"
-#include "utils/Kqueue.hpp"
+#include "utils/KqueueThread.hpp"
+#include "utils/SocketThread.hpp"
 #include "utils/Thread.hpp"
 
 double now_double(void) {
@@ -21,7 +23,7 @@ double now_double(void) {
 }
 
 void *exec_when_sig(void *arg) {
-    utils::Thread *self = (utils::Thread *)arg;
+    utils::SocketThread *self = (utils::SocketThread *)arg;
 
     while (1) {
         pthread_mutex_lock(self->get_lock());
@@ -53,52 +55,61 @@ void *exec_when_sig(void *arg) {
 }
 
 void run_all(std::vector<network::Socket> &servers_sockets,
-             std::vector<utils::Thread> &thread_pool) {
-    int kq, event;
-    struct kevent event_to_monitor[servers_sockets.size()];
-    struct kevent triggered_events[servers_sockets.size()];
+             std::vector<utils::SocketThread> &thread_pool) {
+    (void)thread_pool;
 
-    if ((kq = kqueue()) < 0) {
-        std::cerr << "Error: kqueue" << std::endl;
-    }
+    utils::KqueueThread kt;
 
-    int index = 0;
-    for (std::vector<network::Socket>::iterator serv_it =
-             servers_sockets.begin();
-         serv_it != servers_sockets.end(); serv_it++) {
-        EV_SET(&event_to_monitor[index], serv_it->get_id(), EVFILT_READ,
-               EV_ADD | EV_ENABLE, 0, 0, 0);
-        index++;
-    }
+    kt.add(servers_sockets[0].get_id());
+    kt.add(servers_sockets[1].get_id());
 
-    for (;;) {
-        event = kevent(kq, event_to_monitor, servers_sockets.size(),
-                       triggered_events, servers_sockets.size(), NULL);
-        if (event < 0) {
-            std::cerr << "Error: kevent" << std::endl;
-            return ;
-        } else if (event > 0) {
-            if (triggered_events[0].flags & EV_EOF) exit(EXIT_FAILURE);
+    kt.monitor();
 
-            for (int i = 0; i < event; i++) {
-                if (triggered_events[i].flags & EV_ERROR) {
-                    fprintf(stderr, "EV_ERROR: %s\n",
-                            strerror(triggered_events[i].data));
-                    exit(EXIT_FAILURE);
-                }
+    // int kq, event;
+    // struct kevent event_to_monitor[servers_sockets.size()];
+    // struct kevent triggered_events[servers_sockets.size()];
 
-                for (int j = 0; j < static_cast<int>(servers_sockets.size());
-                     j++) {
-                    if (triggered_events[i].ident ==
-                        static_cast<uintptr_t>(servers_sockets[j].get_id())) {
-                        pthread_mutex_lock(thread_pool[j].get_lock());
-                        pthread_cond_signal(thread_pool[j].get_cond());
-                        pthread_mutex_unlock(thread_pool[j].get_lock());
-                    }
-                }
-            }
-        }
-    }
+    // if ((kq = kqueue()) < 0) {
+    //     std::cerr << "Error: kqueue" << std::endl;
+    // }
+
+    // int index = 0;
+    // for (std::vector<network::Socket>::iterator serv_it =
+    //          servers_sockets.begin();
+    //      serv_it != servers_sockets.end(); serv_it++) {
+    //     EV_SET(&event_to_monitor[index], serv_it->get_id(), EVFILT_READ,
+    //            EV_ADD | EV_ENABLE, 0, 0, 0);
+    //     index++;
+    // }
+
+    // for (;;) {
+    //     event = kevent(kq, event_to_monitor, servers_sockets.size(),
+    //                    triggered_events, servers_sockets.size(), NULL);
+    //     if (event < 0) {
+    //         std::cerr << "Error: kevent" << std::endl;
+    //         return;
+    //     } else if (event > 0) {
+    //         if (triggered_events[0].flags & EV_EOF) exit(EXIT_FAILURE);
+
+    //         for (int i = 0; i < event; i++) {
+    //             if (triggered_events[i].flags & EV_ERROR) {
+    //                 fprintf(stderr, "EV_ERROR: %s\n",
+    //                         strerror(triggered_events[i].data));
+    //                 exit(EXIT_FAILURE);
+    //             }
+
+    //             for (int j = 0; j < static_cast<int>(servers_sockets.size());
+    //                  j++) {
+    //                 if (triggered_events[i].ident ==
+    //                     static_cast<uintptr_t>(servers_sockets[j].get_id()))
+    //                     { pthread_mutex_lock(thread_pool[j].get_lock());
+    //                     pthread_cond_signal(thread_pool[j].get_cond());
+    //                     pthread_mutex_unlock(thread_pool[j].get_lock());
+    //                 }
+    //             }
+    //         }
+    //     }
+    // }
 }
 
 int main(int ac, char **av) {
@@ -141,21 +152,30 @@ int main(int ac, char **av) {
         servers_sockets.push_back(it->get_port());
     }
 
-    std::vector<utils::Thread> thread_pool(servers_sockets.size());
-    std::vector<network::Socket>::iterator serv_it = servers_sockets.begin();
-    std::vector<utils::Thread>::iterator thread_it = thread_pool.begin();
+    network::Socket s = servers_sockets[0];
+    struct pollfd fds[4096];
 
-    std::cout << "Building " << servers_sockets.size()
-              << " threads with sockets on ports : ";
-    for (; serv_it != servers_sockets.end(); serv_it++) {
-        thread_it->link_server(*serv_it);
-        thread_it->init(exec_when_sig);
-        std::cout << serv_it->get_port() << " ";
-        thread_it++;
+    while (1) {
+        RequestHandler handler;
+        network::SimpleRequest tmp(s.do_accept());
+        std::cout << std::endl
+                  << "Request on port " << s.get_port() << std::endl;
+        Result<Request> res =
+            handler.update(tmp.get_data().c_str(), tmp.get_data().length());
+        if (res.is_ok()) {
+            Request req = res.unwrap();
+            std::string rep =
+                "HTTP/1.1 200 OK\nServer: WebServer\nContent-length: "
+                "2\nContent-type: text/html;\n\nok";
+            if (send(tmp.get_fd(), rep.c_str(), rep.length(), 0) < 0)
+                std::cerr << "Send Error" << std::endl;
+            std::cout << "Response Sent from port " << s.get_port() << " to "
+                      << tmp.get_fd() << std::endl;
+            close(tmp.get_fd());
+        } else {
+            std::cout << "Error : Request not okay" << std::endl;
+        }
     }
-    std::cout << std::endl << "Pool OK : all workers are ready" << std::endl;
-
-    run_all(servers_sockets, thread_pool);
 
     return 0;
 }
