@@ -153,7 +153,7 @@ int main(int ac, char **av) {
     }
 
     network::Socket s = servers_sockets[0];
-    struct pollfd fds[4096];
+    // struct pollfd fds[4096];
 
     while (1) {
         RequestHandler handler;

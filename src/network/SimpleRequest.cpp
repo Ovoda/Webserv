@@ -8,27 +8,28 @@ SimpleRequest::SimpleRequest( void ) {}
 
 SimpleRequest::SimpleRequest(int fd) : _fd(fd) {
 	if (_fd < 0) return;
-	// unblock();
+	unblock();
 	_data = extract();
 }
 
 // HMMMM: not sure about what to return when error occurs
 
-std::string &SimpleRequest::extract(void) {
+int	SimpleRequest::extract(void) {
 	char buffer[3000] = {0};
+	int ret;
 
 	if (_fd < 0) {
 		_data = "";
-		return _data;
+		return -1;
 	}
-	if (recv(_fd, buffer, 3000, 0) < 0) {
-		std::cout << strerror(errno) << std::endl;
-		std::cerr << "Error: RECV()" << std::endl;
-		_data = "";
-		return _data;
+	if (( ret = recv(_fd, buffer, 3000, 0)) < 0) {
+		// std::cout << strerror(errno) << std::endl;
+		// std::cerr << "Error: RECV()" << std::endl;
+		// _data = "";
+		return ret;
 	}
 	_data = buffer;
-	return (_data);
+	return (ret);
 }
 
 SimpleRequest::~SimpleRequest() {}

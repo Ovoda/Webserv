@@ -18,7 +18,7 @@ class SimpleRequest {
 	int 	get_fd(void) const;
 	std::string	get_data(void) const;
 	void	unblock( void );
-	std::string &extract( void );
+	int	extract( void );
 
 	/* Usefull for pipelining */
 	//	void set_ipv4(char const ipv4[INET_ADDRSTRLEN]);
