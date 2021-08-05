@@ -39,14 +39,20 @@ void Poll::init_requests(void) {
 }
 
 void Poll::add(int fd, int flags) {
+    int i;
     if (fd > 0) {
         // if (flags & READFL) std::cout << "READFL" << std::endl;
         // if (flags & WRITEFL) std::cout << "WRITEFL" << std::endl;
         if (flags & READFL) FD_SET(fd, &_read_set);
         if (flags & WRITEFL) FD_SET(fd, &_write_set);
-		network::Request tmp(fd);
-		std::cout << tmp.get_fd() << std::endl;
-        _requests.push_back(tmp);
+        for (i = 0; i < _requests.size(); i++) {
+            if (_requests[i].get_fd() == fd) break;
+        }
+        if (i < _requests.size()) {
+            network::Request tmp(fd);
+            std::cout << tmp.get_fd() << std::endl;
+            _requests.push_back(tmp);
+        }
         std::vector<network::Request>::iterator it;
         it = std::max_element(_requests.begin(), _requests.end());
         _max_fd = it->get_fd();
@@ -84,21 +90,21 @@ int Poll::do_poll(void) {
 }
 
 void Poll::check_sockets(void) {
-    for (std::vector<network::Socket>::iterator it = _sockets.begin(); it != _sockets.end();
-         it++) {
+    for (std::vector<network::Socket>::iterator it = _sockets.begin();
+         it != _sockets.end(); it++) {
         if (FD_ISSET(it->get_id(), &_read_set)) {
             int tmp = 0;
             // while (tmp != -1) {
-                tmp = it->do_accept();
-                if (tmp < 0) {
-					perror("Accept: ");
-                    std::cerr << "Error on socket accept" << std::endl;
-                    break;
-                }
-                add(tmp, READFL | WRITEFL);
-                _max_fd = tmp;
-                _nb_requests++;
-                std::cout << _nb_requests << std::endl;
+            tmp = it->do_accept();
+            if (tmp < 0) {
+                perror("Accept: ");
+                std::cerr << "Error on socket accept" << std::endl;
+                break;
+            }
+            add(tmp, READFL | WRITEFL);
+            _max_fd = tmp;
+            _nb_requests++;
+            std::cout << _nb_requests << std::endl;
             // }
         }
     }
@@ -110,40 +116,41 @@ void Poll::check_requests(void) {
              it != _requests.end(); it++) {
             // put this in a thread maybe ?
             if (FD_ISSET(it->get_fd(), &_read_set)) {
-				std::cout << it->get_fd() << " is available for reading" << std::endl;
-            //     char buffer[3000];
-            //     std::cout << "sending" << std::endl;
-            //     int ret = 0;
-            //     ret = recv(it->get_fd(), buffer, 3000, MSG_DONTWAIT);
-            //     std::cout << ret << std::endl;
-            //     if (ret == 0) {
-            //         std::cout << "Connection closed by client" << std::endl;
-            //         close(it->get_fd());
-            //     }
-            //     if (ret < 0) {
-            //         std::cerr << "Error while reading on socket" << std::endl;
-            //         close(it->get_fd());
-            //         break;
-            //     }
-            // }
-            // //                    _buffers[i] += buffer;
-            // // Result<Request> res =
-            // // handler.update(full_request.c_str(),
-            // // full_request.length());
-            // // brian
-            // // refresh return events
-            // if (FD_ISSET(it->get_fd(), &_write_set)) {
-            //     std::cout << "sending" << std::endl;
+                std::cout << it->get_fd() << " is available for reading"
+                          << std::endl;
+                //     char buffer[3000];
+                //     std::cout << "sending" << std::endl;
+                //     int ret = 0;
+                //     ret = recv(it->get_fd(), buffer, 3000, MSG_DONTWAIT);
+                //     std::cout << ret << std::endl;
+                //     if (ret == 0) {
+                //         std::cout << "Connection closed by client" <<
+                //         std::endl; close(it->get_fd());
+                //     }
+                //     if (ret < 0) {
+                //         std::cerr << "Error while reading on socket" <<
+                //         std::endl; close(it->get_fd()); break;
+                //     }
+                // }
+                // //                    _buffers[i] += buffer;
+                // // Result<Request> res =
+                // // handler.update(full_request.c_str(),
+                // // full_request.length());
+                // // brian
+                // // refresh return events
+                // if (FD_ISSET(it->get_fd(), &_write_set)) {
+                //     std::cout << "sending" << std::endl;
 
-            //     int rets = send(it->get_fd(), "HTTP/1.1 OK 200\n\nok", 19, 0);
-            //     if (rets < 0) std::cout << "error sending" << std::endl;
+                //     int rets = send(it->get_fd(), "HTTP/1.1 OK 200\n\nok",
+                //     19, 0); if (rets < 0) std::cout << "error sending" <<
+                //     std::endl;
 
-            //     // check if message is sent fully and if so close()
-            //     if (rets >= 19) {
-            //         close(it->get_fd());
-            //     }
-            // } else {
-            //     std::cout << "Error: not ready yet " << std::endl;
+                //     // check if message is sent fully and if so close()
+                //     if (rets >= 19) {
+                //         close(it->get_fd());
+                //     }
+                // } else {
+                //     std::cout << "Error: not ready yet " << std::endl;
             }
         }
     }
