@@ -1,179 +1,169 @@
 #include "Poll.hpp"
 
-namespace network
-{
-	/*
-	 * Constructors and destructor
-	 */
-	Poll::Poll(void) : _timeout(10000), _capacity(0), _size(0), _nb_socket(0)
-	{
-		_fds = new struct pollfd[0];
-	}
-	Poll::Poll(int timeout, int size) : _timeout(timeout), _capacity(size), _size(size)
-	{
-		_fds = new struct pollfd[size];
-	}
-	Poll::Poll(int timeout, std::vector<network::Socket> s) : _timeout(timeout)
-	{
-		_fds = new struct pollfd[s.size()];
-		_size = 0;
-		for (std::vector<network::Socket>::iterator it = s.begin(); it != s.end(); it++)
-		{
-			_fds[_size].fd = it->get_id();
-			_fds[_size].events = POLLIN;
-			_size++;
-		}
-		_nb_socket = _size;
-		_capacity = _size;
-	}
-	Poll::~Poll()
-	{
-		delete[] _fds;
-	}
+#define READFL 0x0002
+#define WRITEFL 0x0001
 
-	/*
-	 * Getters and Setters
-	 */
-	int Poll::get_size(void) const { return _size; }
-	struct pollfd *Poll::get_fds(void) const { return _fds; }
-	int Poll::get_nb_socket(void) const { return _nb_socket; }
-	int Poll::get_timeout(void) const { return _timeout; }
+namespace network {
+/*
+ * Constructors and destructor
+ */
+Poll::Poll(std::vector<network::Socket> s) : _size(0), _sockets(s) {}
+Poll::~Poll() {}
 
-	/*
-	 * Member functions
-	 */
+/*
+ * Getters and Setters
+ */
+int Poll::get_size(void) const { return _size; }
+std::vector<network::Request> &Poll::get_requests() { return _requests; }
 
-	void Poll::add(int fd, int flags)
-	{
-		if (_size == _capacity)
-		{
-			if (_capacity == 0)
-				_capacity = 1;
-			struct pollfd *tmp = new struct pollfd[_capacity * 2];
-			for (int i = 0; i < _size; i++)
-			{
-				tmp[i] = _fds[i];
-			}
-			_fds = tmp;
-		}
-		if (fd > 0)
-		{
-			_fds[_size].fd = fd;
-			_fds[_size].events = flags;
-			_size++;
-		}
-	}
+int Poll::get_nb_socket(void) const { return _nb_socket; }
 
-	int Poll::do_poll(void)
-	{
-		_ready = poll(_fds, _size, _timeout);
-		return (_ready);
-	}
+/*
+ * Member functions
+ */
 
-	void Poll::check_sockets(std::vector<network::Socket> s)
-	{
-		if (_ready > 0)
-		{
-			for (int j = 0; j < _nb_socket; j++)
-			{
-				if (_fds[j].revents & POLLIN)
-				{
-					int tmp = 0;
-					while (tmp != -1)
-					{
-						tmp = s[j].do_accept();
-						if (tmp < 0)
-						{
-							if (errno != EWOULDBLOCK)
-							{
-								std::cerr << "Error on socket accept" << std::endl;
-							}
-							break;
-						}
-						std::cout << "Event on socket" << std::endl;
-						// std::cout << _ready << std::endl;
-						add(tmp, POLLIN | POLLOUT);
-						// std::cout << *this << std::endl;
-					}
-				}
-			}
-		}
-	}
-
-	void Poll::check_requests(void)
-	{
-		if (_ready > 0)
-		{
-			for (int i = _nb_socket; i < _size; i++)
-			{
-				if (_fds[i].revents & POLLIN)
-				{
-					char buffer[3000];
-					int ret = recv(_fds[i].fd, buffer, 3000, 0);
-					if (ret == 0)
-					{
-						close(_fds[i].fd);
-						_fds[i].fd = -1;
-					}
-					if (ret < 0)
-					{
-						std::cerr << "Error while reading on socket" << std::endl;
-						close(_fds[i].fd);
-						_fds[i].fd = -1;
-					}
-					// std::cout << buffer << std::endl;
-				}
-				else if (_fds[i].revents & POLLOUT)
-				{
-					int rets = send(_fds[i].fd, "OK!", 3, 0);
-					if (rets < 0)
-						std::cout << "error sending" << std::endl;
-					// check if message is sent fully and if so close()
-					if (rets >= 3)
-					{
-						usleep(100);
-						close(_fds[i].fd);
-						_fds[i].fd = -1;
-					}
-				}
-			}
-			resize_fds();
-		}
-	}
-
-	void Poll::resize_fds(void)
-	{
-		for (int i = _nb_socket; i < _size; i++)
-		{
-			if (_fds[i].fd == -1)
-			{
-				for (int j = i; j < _size; j++)
-				{
-					_fds[j].fd = _fds[j + 1].fd;
-				}
-				_size--;
-			}
-		}
-	}
-
-	void Poll::run_servers(std::vector<network::Socket> s) {
-		for (;;) {
-			do_poll();
-			check_sockets(s);
-			check_requests();
-		}
-	}
+void Poll::init_sockets(void) {
+    for (std::vector<network::Socket>::iterator it = _sockets.begin();
+         it != _sockets.end(); it++) {
+        add(it->get_id(), READFL);
+    }
+    _nb_socket = _size;
 }
 
-std::ostream &operator<<(std::ostream &o, network::Poll const &p)
-{
-	o << "Poll : " << std::endl;
-	std::cout << "Socket fds:" << std::endl;
-	for (int i = 0; i < p.get_size(); i++)
-	{
-		if (i == p.get_nb_socket())
-			o << "Accepted fds :" << std::endl;
-		o << i << ": " << p.get_fds()[i].fd << std::endl;
-	}
-	return (o);
+void Poll::init_requests(void) {
+    for (std::vector<network::Request>::iterator it = _requests.begin();
+         it != _requests.end(); it++) {
+        add(it->get_fd(), READFL | WRITEFL);
+    }
+    _nb_socket = _size;
+}
+
+void Poll::add(int fd, int flags) {
+    if (fd > 0) {
+        // if (flags & READFL) std::cout << "READFL" << std::endl;
+        // if (flags & WRITEFL) std::cout << "WRITEFL" << std::endl;
+        if (flags & READFL) FD_SET(fd, &_read_set);
+        if (flags & WRITEFL) FD_SET(fd, &_write_set);
+		network::Request tmp(fd);
+		std::cout << tmp.get_fd() << std::endl;
+        _requests.push_back(tmp);
+        std::vector<network::Request>::iterator it;
+        it = std::max_element(_requests.begin(), _requests.end());
+        _max_fd = it->get_fd();
+        _size++;
+        // std::cout << fd << " added, max_fd : " << _max_fd << std::endl;
+    }
+}
+
+void Poll::remove(int fd, int flags) {
+    if (fd > 0) {
+        if (flags & READFL) FD_CLR(fd, &_read_set);
+        if (flags & WRITEFL) FD_CLR(fd, &_write_set);
+        std::vector<network::Request>::iterator it;
+        it = std::find(_requests.begin(), _requests.end(), fd);
+        _requests.erase(it);
+        it = std::max_element(_requests.begin(), _requests.end());
+        _max_fd = it->get_fd();
+        _size--;
+    }
+}
+
+int Poll::do_poll(void) {
+    int ret;
+
+    FD_ZERO(&_read_set);
+    FD_ZERO(&_write_set);
+    init_sockets();
+    init_requests();
+    ret = select(_max_fd + 1, &_read_set, NULL, NULL, NULL);
+    if (ret < 0) {
+        std::cerr << "Error: select()" << std::endl;
+        return (-1);
+    }
+    return (0);
+}
+
+void Poll::check_sockets(void) {
+    for (std::vector<network::Socket>::iterator it = _sockets.begin(); it != _sockets.end();
+         it++) {
+        if (FD_ISSET(it->get_id(), &_read_set)) {
+            int tmp = 0;
+            // while (tmp != -1) {
+                tmp = it->do_accept();
+                if (tmp < 0) {
+					perror("Accept: ");
+                    std::cerr << "Error on socket accept" << std::endl;
+                    break;
+                }
+                add(tmp, READFL | WRITEFL);
+                _max_fd = tmp;
+                _nb_requests++;
+                std::cout << _nb_requests << std::endl;
+            // }
+        }
+    }
+}
+
+void Poll::check_requests(void) {
+    if (_ready > 0) {
+        for (std::vector<network::Request>::iterator it = _requests.begin();
+             it != _requests.end(); it++) {
+            // put this in a thread maybe ?
+            if (FD_ISSET(it->get_fd(), &_read_set)) {
+				std::cout << it->get_fd() << " is available for reading" << std::endl;
+            //     char buffer[3000];
+            //     std::cout << "sending" << std::endl;
+            //     int ret = 0;
+            //     ret = recv(it->get_fd(), buffer, 3000, MSG_DONTWAIT);
+            //     std::cout << ret << std::endl;
+            //     if (ret == 0) {
+            //         std::cout << "Connection closed by client" << std::endl;
+            //         close(it->get_fd());
+            //     }
+            //     if (ret < 0) {
+            //         std::cerr << "Error while reading on socket" << std::endl;
+            //         close(it->get_fd());
+            //         break;
+            //     }
+            // }
+            // //                    _buffers[i] += buffer;
+            // // Result<Request> res =
+            // // handler.update(full_request.c_str(),
+            // // full_request.length());
+            // // brian
+            // // refresh return events
+            // if (FD_ISSET(it->get_fd(), &_write_set)) {
+            //     std::cout << "sending" << std::endl;
+
+            //     int rets = send(it->get_fd(), "HTTP/1.1 OK 200\n\nok", 19, 0);
+            //     if (rets < 0) std::cout << "error sending" << std::endl;
+
+            //     // check if message is sent fully and if so close()
+            //     if (rets >= 19) {
+            //         close(it->get_fd());
+            //     }
+            // } else {
+            //     std::cout << "Error: not ready yet " << std::endl;
+            }
+        }
+    }
+}
+
+void Poll::run_servers(std::vector<network::Socket> s) {
+    for (;;) {
+        do_poll();
+        check_sockets();
+        check_requests();
+    }
+}
+}  // namespace network
+
+std::ostream &operator<<(std::ostream &o, network::Poll &p) {
+    o << "Poll : " << std::endl;
+    std::cout << "Socket fds:" << std::endl;
+    for (int i = 0; i < p.get_size(); i++) {
+        if (i == p.get_nb_socket()) o << "Accepted fds :" << std::endl;
+        o << i << ": " << p.get_requests()[i].get_fd() << std::endl;
+    }
+    return (o);
 }

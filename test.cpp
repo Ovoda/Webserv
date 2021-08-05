@@ -4,25 +4,25 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <vector>
+#include <set>
 
 #include "networking/Socket.hpp"
 #include "networking/Poll.hpp"
 
 int main(void)
 {
-    network::Socket s1(18000);
-    network::Socket s2(18001);
-    network::Socket s3(18002);
-    std::vector<network::Socket> s;
+    std::set<int>               seti;
+    seti.insert(18000);
+    seti.insert(18001);
+    seti.insert(18002);
 
-    s.push_back(s1);
-    s.push_back(s2);
-    s.push_back(s3);
+    std::vector<network::Socket> s(seti.begin(), seti.end());
 
-    network::Poll p(10000, s);
-    std::cout << p << std::endl;
-
+    network::Poll p(s);
     p.run_servers(s);
+
+    // check if non blocking works well
+    // s1.do_accept();
 
     return (0);
 }
