@@ -13,6 +13,12 @@ class Request {
     ~Request();
     std::string &get_buffer(void);
     std::string get_buffer_copy(void) const;
+    int get_status( void ) const;
+    void    set_status( int status );
+
+    void    set_connection(bool value);
+    bool    get_connection( void ) const;
+
     int get_fd(void) const;
     bool operator<(Request const &rhs) const;
     bool operator>(Request const &rhs) const;
@@ -22,6 +28,8 @@ class Request {
    private:
     std::string _buffer;
     int _fd;
+    int _status;
+    bool    _connection_is_closed;
 };
 }  // namespace network
 
