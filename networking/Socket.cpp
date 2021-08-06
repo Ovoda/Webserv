@@ -27,7 +27,7 @@ namespace network
             return;
         }
         if (setsockopt(_id, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(int)) < 0)
-            std::cout << "setsockopt(SO_REUSEADDR) failed" << std::endl;
+            std::cerr << "setsockopt(SO_REUSEADDR) failed" << std::endl;
         _address.sin_family = _domain;
         _address.sin_addr.s_addr = INADDR_ANY;
         _address.sin_port = htons(_port);

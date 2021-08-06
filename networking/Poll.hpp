@@ -30,6 +30,7 @@ namespace network
 		void	check_requests(void);
 		void	resize_fds(void);
 		void	run_servers(std::vector<network::Socket> s);
+		void	send_response(void);
 
 	private:
 		struct pollfd *_fds;
@@ -38,6 +39,8 @@ namespace network
 		int _size;
 		int _nb_socket;
 		int _ready;
+		int	_request_nb;
+		std::vector<bool>	_checked_socket;
 	};
 }
 
