@@ -11,7 +11,7 @@ Poll::Poll(int timeout, int size)
     : _timeout(timeout), _capacity(size), _size(size) {
     _fds = new struct pollfd[size];
 }
-Poll::Poll(int timeout, std::vector<network::Socket> s) : _timeout(timeout) {
+Poll::Poll(std::vector<network::Socket> s) : _capacity(0), _size(0), _nb_socket(0), _request_nb(0) {
     _fds = new struct pollfd[s.size()];
     _size = 0;
     for (std::vector<network::Socket>::iterator it = s.begin(); it != s.end();

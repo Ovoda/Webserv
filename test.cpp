@@ -11,18 +11,18 @@
 
 int main(void)
 {
-    std::set<int> ports;
-
+    std::set<int>               ports;
     ports.insert(18000);
     ports.insert(18001);
     ports.insert(18002);
 
+    std::vector<network::Socket> sockets(ports.begin(), ports.end());
 
-    std::vector<network::Socket>    sockets(ports.begin(), ports.end());
-
-    network::Poll p(10000, sockets);
-    std::cout << p << std::endl;
+    network::Poll p(sockets);
     p.run_servers(sockets);
+
+    // check if non blocking works well
+    // s1.do_accept();
 
     return (0);
 }

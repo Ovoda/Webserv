@@ -1,12 +1,14 @@
 #ifndef NETWORK_POLL_HPP
 #define NETWORK_POLL_HPP
 
-#include <poll.h>
-#include "Socket.hpp"
-#include <vector>
 #include <errno.h>
+#include <poll.h>
+#include <sys/select.h>  // select()
 #include <sys/socket.h>
 #include <unistd.h> // close()
+#include <vector>
+#include <iostream>
+#include "Socket.hpp"
 
 namespace network
 {
@@ -15,7 +17,7 @@ namespace network
 	public:
 		Poll(void);
 		Poll(int timeout, int size);
-		Poll(int timeout, std::vector<network::Socket> s);
+		Poll(std::vector<network::Socket> s);
 
 		~Poll();
 

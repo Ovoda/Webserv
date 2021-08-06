@@ -93,7 +93,7 @@ namespace network
             _is_good = false;
             return (-1);
         }
-        fcntl(_id, F_SETFL, O_NONBLOCK);
+        unblock();
         return (0);
     }
 
@@ -106,8 +106,6 @@ namespace network
         if ((new_fd = accept(get_id(), (struct sockaddr *)&client_addr,
                              &addr_len)) < 0)
         {
-            // std::cout << strerror(errno) << std::endl;
-            // std::cerr << "Error accepting" << std::endl;
             _is_good = false;
             return (new_fd);
         }
@@ -118,8 +116,6 @@ namespace network
 
     int Socket::unblock(void)
     {
-        std::cout << "unblock : is good = " << std::boolalpha << _is_good
-                  << std::endl;
         if (_is_good == false || _id < 0)
             return -1;
         return (fcntl(_id, F_SETFL, O_NONBLOCK));
