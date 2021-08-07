@@ -3,19 +3,18 @@
 #include <stdio.h>
 #include <sys/socket.h>
 #include <unistd.h>
-#include <vector>
-#include <set>
-
-#include "networking/ServerSocket.hpp"
-#include "networking/Poll.hpp"
-#include "networking/PollFd.hpp"
 
 #include <map>
-int main(void)
-{
+#include <set>
+#include <vector>
 
+#include "networking/Poll.hpp"
+#include "networking/PollFd.hpp"
+#include "networking/ServerSocket.hpp"
+
+int main(void) {
     // network::PollFd fds;
-    
+
     // std::set<int>               ports;
     // ports.insert(18000);
     // ports.insert(18001);

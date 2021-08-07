@@ -3,25 +3,23 @@ project(webserv)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror -std=c++98")
 
-include_directories(src/parser src/parsing src src/network)
+include_directories(src/parser src/parsing src src/network networking)
 
 set(FILES
         src/main.cpp
         src/Constants.hpp
 
-        src/network/Socket.hpp
-        src/network/Socket.cpp
-        src/network/SimpleRequest.hpp
-        src/network/SimpleRequest.cpp
+        networking/Socket.hpp
+        networking/Socket.cpp
+        networking/ServerSocket.cpp
+        networking/ServerSocket.hpp
+        networking/Socket.hpp
+        networking/Socket.cpp
+        networking/Poll.cpp
+        networking/Poll.hpp
+        networking/PollFd.cpp
+        networking/PollFd.hpp
 
-        src/utils/Thread.hpp
-        src/utils/Thread.cpp
-        src/utils/SocketThread.hpp
-        src/utils/SocketThread.cpp
-        src/utils/KqueueThread.hpp
-        src/utils/KqueueThread.cpp
-        src/utils/Kqueue.hpp
-        src/utils/Kqueue.cpp
 
         src/parser/combinators.hpp
         src/parser/Error.cpp

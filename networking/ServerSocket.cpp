@@ -2,6 +2,7 @@
 
 #include <errno.h>
 #include <stdio.h>
+#include <string.h>
 namespace network {
 
 ServerSocket::ServerSocket(void)
@@ -70,7 +71,7 @@ int ServerSocket::do_bind(void) {
     _address.sin_port = htons(_port);
     if (bind(_id, (struct sockaddr *)&_address, sizeof(_address)) < 0) {
         std::cerr << "Error: Cannot bind ServerSocket" << std::endl;
-        std::cerr << strerror(errno) << std::endl;
+        // std::cerr << strerror(errno) << std::endl;
         _is_good = false;
         return (-1);
     }

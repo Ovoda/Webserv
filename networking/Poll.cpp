@@ -64,8 +64,10 @@ void Poll::send_response(void) {
             // std::cout << _request_nb << " writing on request" << std::endl
             //           << std::endl;
             ret = send(_fds.get_fd(i), "HTTP/1.1 OK 200\n\n500\n", 21, 0);
-            close(_fds.get_fd(i));
-            _fds.set_status(i, fd_status::closed);
+            if (ret > 0) {
+                close(_fds.get_fd(i));
+                _fds.set_status(i, fd_status::closed);
+            }
             // pthread_t t;
             // pthread_create(&t, NULL, ok, &(_fds.get_fd(i)));
         }
@@ -83,6 +85,7 @@ void Poll::run_servers(std::vector<network::ServerSocket> s) {
 }
 
 std::ostream &operator<<(std::ostream &o, network::Poll const &p) {
+    (void)p;
     // std::cout << "Listening on " << p.get_size() << " socket(s) : ";
     // for (int i = 0; i < p.get_size(); i++) {
     //     o << "[" << p.get_fds()[i].fd << "] ";
